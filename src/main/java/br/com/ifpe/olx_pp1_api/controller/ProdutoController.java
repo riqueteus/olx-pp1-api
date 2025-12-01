@@ -115,4 +115,16 @@ public class ProdutoController {
         Produto produto = produtoService.salvarImagem(id, imagem);
         return ResponseEntity.ok(ProdutoResponse.fromProduto(produto));
     }
+
+    // pesquisa com múltiplos filtros
+    @GetMapping("/pesquisar-avancado")
+    public List<Produto> pesquisarProdutosComFiltros(
+            @RequestParam(required = false) String termo,
+            @RequestParam(required = false) CategoriaProduto categoria,
+            @RequestParam(required = false) Double precoMin,
+            @RequestParam(required = false) Double precoMax,
+            @RequestParam(required = false) String uf) {
+
+        return produtoService.pesquisarProdutosComFiltros(termo, categoria, precoMin, precoMax, uf);
+    }
 }
