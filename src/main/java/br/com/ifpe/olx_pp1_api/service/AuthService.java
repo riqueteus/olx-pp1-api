@@ -1,11 +1,13 @@
 package br.com.ifpe.olx_pp1_api.service;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.com.ifpe.olx_pp1_api.config.JwtService;
 import br.com.ifpe.olx_pp1_api.dto.AuthResponse;
@@ -23,7 +25,6 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    
     public AuthResponse register(RegisterRequest request, Role role) {
         
         
@@ -31,29 +32,38 @@ public class AuthService {
             throw new RuntimeException("CPF/CNPJ já está em uso!");
         }
 
-       
+        
+        Set<Role> roles = new HashSet<>();
+        roles.add(role); 
+        
+        
+        if (role == Role.ROLE_VENDEDOR) {
+            roles.add(Role.ROLE_COMPRADOR);
+        }
+        // ---------------------------------------------
+
+        
         Usuario usuario = Usuario.builder()
                 .nome(request.getNome())
                 .email(request.getEmail())
                 .senha(request.getSenha()) 
                 .cpfCnpj(request.getCpfCnpj())
                 .telefone(request.getTelefone())
-                .roles(Set.of(role))
+                .roles(roles) 
                 .build();
         
-       
+        
         Usuario usuarioSalvo = usuarioService.registrarUsuario(usuario);
         
-        
         return AuthResponse.builder()
-                .token(null)
+                .token(null) 
                 .nomeUsuario(usuarioSalvo.getNome())
                 .build();
     }
 
-
+    
+    @Transactional(noRollbackFor = RuntimeException.class)
     public AuthResponse login(LoginRequest request) {
-        
         
         Usuario usuario = usuarioService.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -61,9 +71,7 @@ public class AuthService {
         
         if (!usuario.isHabilitado()) {
             
-            
             usuarioService.reenviarCodigoAtivacao(usuario);
-            
             throw new RuntimeException("Conta não ativada. Um novo link de confirmação foi enviado para o seu e-mail.");
         }
 
@@ -84,7 +92,6 @@ public class AuthService {
                 .nomeUsuario(usuario.getNome())
                 .build();
     }
-    
     
     private UserDetails buildUserDetails(Usuario usuario) {
         return org.springframework.security.core.userdetails.User.builder()
