@@ -26,7 +26,7 @@ public class ProdutoResponse {
     private StatusProduto status;
     private CategoriaProduto categoriaProduto;
     private String imagem;
-    private Map<String, Object> caracteristicas;
+    private Object caracteristicas; 
     private String nomeVendedor; 
     private String telefoneVendedor;
 

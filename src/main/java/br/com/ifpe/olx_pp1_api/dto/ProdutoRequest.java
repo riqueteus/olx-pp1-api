@@ -39,7 +39,7 @@ public class ProdutoRequest {
 
     private String imagem;
 
-   private Map<String, Object> caracteristicas;
+    private Object caracteristicas; 
 
     public Produto build() {
         return Produto.builder()

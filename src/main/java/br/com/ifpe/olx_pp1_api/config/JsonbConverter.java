@@ -3,17 +3,15 @@ package br.com.ifpe.olx_pp1_api.config;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Map;
 
 @Converter
-public class JsonbConverter implements AttributeConverter<Map<String, Object>, String> {
+public class JsonbConverter implements AttributeConverter<Object, String> {
     
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public String convertToDatabaseColumn(Map<String, Object> attribute) {
+    public String convertToDatabaseColumn(Object attribute) {
         try {
             return attribute == null ? null : objectMapper.writeValueAsString(attribute);
         } catch (JsonProcessingException e) {
@@ -22,11 +20,11 @@ public class JsonbConverter implements AttributeConverter<Map<String, Object>, S
     }
 
     @Override
-    public Map<String, Object> convertToEntityAttribute(String dbData) {
+    public Object convertToEntityAttribute(String dbData) {
         try {
-            return dbData == null ? null : objectMapper.readValue(dbData, new TypeReference<Map<String, Object>>() {});
+            return dbData == null ? null : objectMapper.readValue(dbData, Object.class);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Erro ao converter de JSON", e);
+            return dbData; 
         }
     }
 }

@@ -56,9 +56,12 @@ public class Produto extends EntidadeAuditavel {
     @Column(nullable = false)
     private CategoriaProduto categoriaProduto;
 
+    // 
+    // @Column(columnDefinition = "jsonb")
+    // private Map<String, Object> caracteristicas;
     @Convert(converter = JsonbConverter.class)
-    @Column(columnDefinition = "jsonb")
-    private Map<String, Object> caracteristicas;
+    @Column(columnDefinition = "jsonb")  
+    private Object caracteristicas;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false) 

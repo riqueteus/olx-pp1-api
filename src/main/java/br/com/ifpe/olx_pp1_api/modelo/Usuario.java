@@ -1,11 +1,11 @@
 package br.com.ifpe.olx_pp1_api.modelo;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
-import org.hibernate.annotations.SQLRestriction;
-
 import br.com.ifpe.olx_pp1_api.util.entity.EntidadeAuditavel;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -14,6 +14,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +24,6 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "Usuario")
-@SQLRestriction("habilitado = true")
 @Builder
 @Getter
 @Setter
@@ -35,7 +35,8 @@ public class Usuario extends EntidadeAuditavel {
     @Column(unique = true, nullable = false, length = 14) private String cpfCnpj; 
     @Column private LocalDate dataNascimento;
     @Column(length = 15) private String telefone;
-    @Column(length = 9) private String cep;
+    
+
     @Column(nullable = false, unique = true, length = 100) private String email;
     @Column(nullable = false) private String senha; 
 
@@ -47,4 +48,21 @@ public class Usuario extends EntidadeAuditavel {
     
     @Column(name = "mp_access_token") private String mercadoPagoAccessToken;
     @Column(name = "mp_refresh_token") private String mercadoPagoRefreshToken;
+
+    @Column(nullable = false)
+    private boolean habilitado = false;
+
+    @Column(name = "codigo_verificacao")
+    private String codigoVerificacao;
+
+    @Column(name = "token_redefinicao_senha")
+    private String tokenRedefinicaoSenha;
+
+    @Column(name = "data_expiracao_redefinicao")
+    private LocalDateTime dataExpiracaoRedefinicao;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "endereco_id")
+    private Endereco endereco;
+
 }
