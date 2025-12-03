@@ -13,6 +13,7 @@ import br.com.ifpe.olx_pp1_api.config.JwtService;
 import br.com.ifpe.olx_pp1_api.dto.AuthResponse;
 import br.com.ifpe.olx_pp1_api.dto.LoginRequest;
 import br.com.ifpe.olx_pp1_api.dto.RegisterRequest;
+import br.com.ifpe.olx_pp1_api.modelo.Endereco;
 import br.com.ifpe.olx_pp1_api.modelo.Role;
 import br.com.ifpe.olx_pp1_api.modelo.Usuario;
 import lombok.RequiredArgsConstructor;
@@ -36,11 +37,14 @@ public class AuthService {
         Set<Role> roles = new HashSet<>();
         roles.add(role); 
         
-        
         if (role == Role.ROLE_VENDEDOR) {
             roles.add(Role.ROLE_COMPRADOR);
+            
+            
+            if (request.getCep() == null || request.getLogradouro() == null) {
+                throw new RuntimeException("Vendedores devem informar o endereço completo (CEP e Logradouro).");
+            }
         }
-        // ---------------------------------------------
 
         
         Usuario usuario = Usuario.builder()
@@ -49,9 +53,25 @@ public class AuthService {
                 .senha(request.getSenha()) 
                 .cpfCnpj(request.getCpfCnpj())
                 .telefone(request.getTelefone())
+                .dataNascimento(request.getDataNascimento())
                 .roles(roles) 
                 .build();
         
+       
+        if (request.getCep() != null) {
+            Endereco endereco = Endereco.builder()
+                    .cep(request.getCep())
+                    .logradouro(request.getLogradouro())
+                    .numero(request.getNumero())
+                    .bairro(request.getBairro())
+                    .cidade(request.getCidade())
+                    .uf(request.getUf())
+                    .complemento(request.getComplemento())
+                    .build();
+            
+            usuario.setEndereco(endereco);
+        }
+
         
         Usuario usuarioSalvo = usuarioService.registrarUsuario(usuario);
         
@@ -61,28 +81,23 @@ public class AuthService {
                 .build();
     }
 
-    
     @Transactional(noRollbackFor = RuntimeException.class)
     public AuthResponse login(LoginRequest request) {
         
         Usuario usuario = usuarioService.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        
         if (!usuario.isHabilitado()) {
-            
             usuarioService.reenviarCodigoAtivacao(usuario);
             throw new RuntimeException("Conta não ativada. Um novo link de confirmação foi enviado para o seu e-mail.");
         }
 
-        
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getSenha()
                 )
         );
-        
         
         UserDetails userDetails = buildUserDetails(usuario);
         String token = jwtService.generateToken(userDetails);
