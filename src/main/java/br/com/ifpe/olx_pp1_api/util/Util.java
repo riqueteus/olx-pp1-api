@@ -4,12 +4,13 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.time.LocalDateTime;
+
 import org.springframework.web.multipart.MultipartFile;
 
 public class Util {
 
     // ATENÇÃO: Altere este caminho para onde você quer armazenar as imagens
-    public static final String LOCAL_ARMAZENAMENTO_IMAGENS = "C:/Users/debor/Documents/estudos/pp1/olx-pp1-api/public";
+    public static final String LOCAL_ARMAZENAMENTO_IMAGENS = "uploads/imagens";
 
     public static String fazerUploadImagem(MultipartFile imagem) {
 

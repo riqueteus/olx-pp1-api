@@ -1,6 +1,10 @@
 package br.com.ifpe.olx_pp1_api.acesso;
 
+import java.nio.file.Files;
 import java.util.List;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
 
 import br.com.ifpe.olx_pp1_api.dto.ProdutoRequest;
 import br.com.ifpe.olx_pp1_api.dto.ProdutoResponse;
@@ -106,7 +111,7 @@ public class ProdutoController {
     public List<Produto> listarProdutosVendidosDeUsuario(@PathVariable Long usuarioId) {
         return produtoService.listarProdutosVendidosDeUsuario(usuarioId);
     }
-
+    // upload de imagem
     @PostMapping("/{id}/imagem")
     public ResponseEntity<ProdutoResponse> uploadImagem(
             @PathVariable Long id,
@@ -115,6 +120,13 @@ public class ProdutoController {
         Produto produto = produtoService.salvarImagem(id, imagem);
         return ResponseEntity.ok(ProdutoResponse.fromProduto(produto));
     }
+    // buscar imagem
+    @GetMapping("/imagens/{nomeArquivo}")
+    public ResponseEntity<byte[]> getImagem(@PathVariable String nomeArquivo) throws IOException {
+    Path caminho = Paths.get("uploads/imagens/" + nomeArquivo);
+    byte[] imagem = Files.readAllBytes(caminho);
+    return ResponseEntity.ok().body(imagem);
+}
 
     // pesquisa com múltiplos filtros
     @GetMapping("/pesquisar-avancado")
