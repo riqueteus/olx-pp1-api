@@ -1,0 +1,66 @@
+package br.com.ifpe.olx_pp1_api.pagamento;
+
+import com.stripe.exception.SignatureVerificationException;
+import com.stripe.model.Event;
+import com.stripe.model.checkout.Session;
+import com.stripe.net.Webhook;
+import com.stripe.Stripe;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@RestController
+@RequestMapping("/api/pagamento")
+@CrossOrigin(origins = "*")
+public class StripeWebhookController {
+
+    private static final Logger log = LoggerFactory.getLogger(StripeWebhookController.class);
+
+    private final PagamentoService pagamentoService;
+
+    @Value("${stripe.webhook.secret:}")
+    private String stripeWebhookSecret;
+
+    public StripeWebhookController(PagamentoService pagamentoService, @Value("${stripe.api.key:}") String stripeKey) {
+        this.pagamentoService = pagamentoService;
+        if (stripeKey != null && !stripeKey.isBlank()) Stripe.apiKey = stripeKey;
+    }
+
+    @PostMapping("/webhook")
+    public ResponseEntity<String> handle(@RequestHeader(name = "Stripe-Signature", required = false) String sigHeader,
+                                         @RequestBody String payload) {
+        try {
+            Event event;
+            if (stripeWebhookSecret != null && !stripeWebhookSecret.isBlank()) {
+                // verifica assinatura
+                event = Webhook.constructEvent(payload, sigHeader, stripeWebhookSecret);
+            } else {
+                // sem secret: parse simples (útil em dev apenas)
+                event = Event.GSON.fromJson(payload, Event.class);
+            }
+
+            log.info("Recebeu evento Stripe: {}", event.getType());
+
+            if ("checkout.session.completed".equals(event.getType())) {
+                Session session = (Session) event.getDataObjectDeserializer().getObject().orElse(null);
+                if (session != null) {
+                    String sessionId = session.getId();
+                    pagamentoService.processarSessaoStripeCompletada(sessionId);
+                    log.info("Pagamento processado para session {}", sessionId);
+                }
+            }
+
+            // outros eventos podem ser tratados aqui
+
+            return ResponseEntity.ok("ok");
+        } catch (SignatureVerificationException e) {
+            log.error("Falha na verificação da assinatura do webhook: {}", e.getMessage());
+            return ResponseEntity.status(400).body("signature verification failed");
+        } catch (Exception e) {
+            log.error("Erro ao processar webhook: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body("error");
+        }
+    }
+}

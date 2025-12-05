@@ -23,8 +23,10 @@ public class UsuarioService {
     public Usuario save(Usuario usuario) {
         return usuarioRepository.save(usuario);
     }
-
-    
+    public Usuario buscarPorId(Long id) {
+        return usuarioRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("UsuÃ¡rio nÃ£o encontrado: " + id));
+    }
     public Usuario registrarUsuario(Usuario usuario) {
         if (usuarioRepository.existsByEmail(usuario.getEmail())) {
             throw new RuntimeException("Email já cadastrado");
