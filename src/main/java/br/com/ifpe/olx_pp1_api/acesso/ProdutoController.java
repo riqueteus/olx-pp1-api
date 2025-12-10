@@ -7,7 +7,9 @@ import java.nio.file.Paths;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -121,12 +123,29 @@ public class ProdutoController {
         return ResponseEntity.ok(ProdutoResponse.fromProduto(produto));
     }
     // buscar imagem
-    @GetMapping("/imagens/{nomeArquivo}")
+    @GetMapping("/imagens/{nomeArquivo:.+}")
     public ResponseEntity<byte[]> getImagem(@PathVariable String nomeArquivo) throws IOException {
-    Path caminho = Paths.get("uploads/imagens/" + nomeArquivo);
-    byte[] imagem = Files.readAllBytes(caminho);
-    return ResponseEntity.ok().body(imagem);
-}
+        Path caminho = Paths.get("uploads/imagens/imagens_produtos/" + nomeArquivo);
+        
+        if (!Files.exists(caminho)) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        byte[] imagem = Files.readAllBytes(caminho);
+        
+        String contentType = "image/jpeg"; 
+        String nomeArquivoLower = nomeArquivo.toLowerCase();
+        if (nomeArquivoLower.endsWith(".png")) {
+            contentType = "image/png";
+        } else if (nomeArquivoLower.endsWith(".webp")) {
+            contentType = "image/webp";
+        }
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(contentType));
+        
+        return ResponseEntity.ok().headers(headers).body(imagem);
+    }
 
     // pesquisa com múltiplos filtros
     @GetMapping("/pesquisar-avancado")
@@ -140,3 +159,4 @@ public class ProdutoController {
         return produtoService.pesquisarProdutosComFiltros(termo, categoria, precoMin, precoMax, uf);
     }
 }
+

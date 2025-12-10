@@ -93,11 +93,13 @@ public class UsuarioService {
             
             usuarioRepository.save(usuario);
             
-            emailService.enviarEmail(
-                usuario.getEmail(), 
-                "Redefinição de Senha", 
-                "Seu token é: " + usuario.getTokenRedefinicaoSenha()
-            );
+        String link = "http://localhost:5173/redefinir-senha?token=" + usuario.getTokenRedefinicaoSenha();
+        
+        emailService.enviarEmail(
+            usuario.getEmail(), 
+            "Redefinição de Senha", 
+            "Clique no link para redefinir sua senha: " + link
+        );
         }
     }
 
