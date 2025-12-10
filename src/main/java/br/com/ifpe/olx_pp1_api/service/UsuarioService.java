@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,9 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    
+    @Value("${frontend.url:https://pp1-web-olx.vercel.app}")
+    private String frontendUrl;
 
 
     public Usuario save(Usuario usuario) {
@@ -38,7 +42,7 @@ public class UsuarioService {
 
         Usuario usuarioSalvo = usuarioRepository.save(usuario);
 
-        String link = "http://localhost:5173/verificar-email?codigo=" + usuarioSalvo.getCodigoVerificacao();
+        String link = frontendUrl + "/verificar-email?codigo=" + usuarioSalvo.getCodigoVerificacao();
         
         emailService.enviarEmail(
             usuarioSalvo.getEmail(), 
@@ -61,7 +65,7 @@ public class UsuarioService {
     
     private void enviarEmailAtivacao(Usuario usuario) {
        
-        String link = "http://localhost:5173/verificar-email?codigo=" + usuario.getCodigoVerificacao();
+        String link = frontendUrl + "/verificar-email?codigo=" + usuario.getCodigoVerificacao();
         
         emailService.enviarEmail(
             usuario.getEmail(), 
@@ -93,7 +97,7 @@ public class UsuarioService {
             
             usuarioRepository.save(usuario);
             
-        String link = "http://localhost:5173/redefinir-senha?token=" + usuario.getTokenRedefinicaoSenha();
+        String link = frontendUrl + "/redefinir-senha?token=" + usuario.getTokenRedefinicaoSenha();
         
         emailService.enviarEmail(
             usuario.getEmail(), 

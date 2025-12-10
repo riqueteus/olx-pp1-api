@@ -66,9 +66,15 @@ public class SecurityConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("*")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*");
+                        .allowedOrigins(
+                            "https://pp1-web-olx.vercel.app",
+                            "http://localhost:5173",  // Vite dev
+                            "http://localhost:3000"    // React dev
+                        )
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
+                        .allowedHeaders("*")
+                        .exposedHeaders("*")
+                        .maxAge(3600);
             }
         };
     }
