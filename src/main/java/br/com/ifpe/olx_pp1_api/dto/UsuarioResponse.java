@@ -38,6 +38,8 @@ public class UsuarioResponse {
     private boolean possuiCredenciaisMercadoPago;
 
     public static UsuarioResponse fromUsuario(Usuario usuario) {
+        Endereco endereco = usuario.getEndereco();
+
         return UsuarioResponse.builder()
                 .id(usuario.getId())
                 .nome(usuario.getNome())
