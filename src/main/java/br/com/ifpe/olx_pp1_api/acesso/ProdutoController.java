@@ -71,6 +71,13 @@ public class ProdutoController {
         return ResponseEntity.ok().build();
     }
 
+    // marcar como inativo (no lugar de excluir)
+    @PutMapping("/{id}/inativo")
+    public ResponseEntity<Void> marcarComoInativo(@PathVariable Long id) {
+        produtoService.marcarComoInativo(id);
+        return ResponseEntity.ok().build();
+    }
+
     // visualizar detalhes de um produto
     @GetMapping("/{id}")
     public ResponseEntity<Produto> visualizarDetalhes(@PathVariable Long id) {

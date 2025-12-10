@@ -75,6 +75,16 @@ public class ProdutoService {
         repository.save(produto);
     }
 
+    // marcar como inativo
+    @Transactional
+    public void marcarComoInativo(Long id) {
+        Produto produto = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+
+        produto.setStatus(StatusProduto.INATIVO);
+        repository.save(produto);
+    }
+
     // listar produtos de um usuário específico
     public List<Produto> listarProdutosDeUsuario(Long usuarioId) {
         return repository.findByVendedorId(usuarioId);
