@@ -67,7 +67,7 @@ public class SecurityConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins(
-                            "https://pp1-web-olx.vercel.app",
+                            "https://olxmarketplace.duckdns.org", // Production
                             "http://localhost:5173",  // Vite dev
                             "http://localhost:3000"    // React dev
                         )

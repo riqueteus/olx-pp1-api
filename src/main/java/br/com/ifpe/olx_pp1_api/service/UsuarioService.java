@@ -20,7 +20,7 @@ public class UsuarioService {
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     
-    @Value("${frontend.url:https://pp1-web-olx.vercel.app}")
+    @Value("${frontend.url}")
     private String frontendUrl;
 
 
